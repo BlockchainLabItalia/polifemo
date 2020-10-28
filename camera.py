@@ -12,11 +12,11 @@ import torch.backends.cudnn as cudnn
 from utils.datasets import LoadStreams
 
 class Camera (Thread):
-    def __init__(self, cameraID, model, device, imgsz, ip_address, line_orientation, line_position, position_in):
+    def __init__(self, cameraID, model, device, imgsz, ip_address, line_orientation, line_position, position_in, influx_config):
         Thread.__init__(self)
         self.people = []
         self.cameraID = cameraID
-        self.db_client = MyInflux(cameraID)
+        self.db_client = MyInflux(cameraID, influx_config["hostname"],influx_config["database_name"],influx_config["port"])
         self.model = model
         self.imgsz = imgsz
         self.source = ip_address

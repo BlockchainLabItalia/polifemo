@@ -1,9 +1,9 @@
 from influxdb import InfluxDBClient, DataFrameClient
 
 class MyInflux:
-    def __init__(self, cameraID, database_name='socialcounter'):
+    def __init__(self, cameraID, host, database_name, port):
         self.db_name = database_name
-        self.client = InfluxDBClient(host='68.183.38.198', port=8086)
+        self.client = InfluxDBClient(host, port)
         if(not database_name in self.get_databases()):
             self.client.create_database(database_name)
 
