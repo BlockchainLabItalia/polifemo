@@ -9,7 +9,7 @@ from utils.general import (
     xyxy2xywh)
 import torch
 import torch.backends.cudnn as cudnn
-from utils.datasets import LoadStreams
+from utils.datasets import LoadStreams, LoadImages
 
 class Camera (Thread):
     def __init__(self, cameraID, model, device, imgsz, ip_address, line_orientation, line_position, position_in, influx_config):
@@ -49,7 +49,11 @@ class Camera (Thread):
 
         imgsz = check_img_size(self.imgsz, s=self.model.stride.max())  # check img_size
         cudnn.benchmark = True  # set True to speed up constant image size inference
-        dataset = LoadStreams(self.source, img_size=imgsz)
+        if self.source.isnumeric() or self.source.startswith(('rtsp://', 'rtmp://', 'http://')) or self.source.endswith('.txt'):
+            dataset = LoadStreams(self.source, img_size=imgsz)
+        else:
+            dataset = LoadImages(self.source, img_size=imgsz)
+
         half = self.device.type != 'cpu'  # half precision only supported on CUDA
 
         if half:
