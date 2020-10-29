@@ -1,0 +1,1 @@
+docker build -t pmonteverdi/polifemo:v1.0 .

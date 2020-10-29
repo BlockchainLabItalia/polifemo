@@ -3,17 +3,10 @@
     [
         {
             "name":"cameraId1",
-            "source":"inference/video/Video7.mp4",
+            "source":"rtsp://192.168.1.222/11",
             "line_orientation":"vertical",
-            "line_position":0.5,
-            "position_in":"left"
-        },
-        {
-            "name":"cameraId2",
-            "source":"inference/video/Video8.mp4",
-            "line_orientation":"horizontal",
-            "line_position":0.5,
-            "position_in":"top"
+            "line_position":0.4,
+            "position_in":"right"
         }
     ],
     "databases":
@@ -27,7 +20,7 @@
         "img_size":640,
         "conf_thres":0.4,
         "iou_thres":0.5,
-        "device":"0",
+        "device":"cpu",
         "weights":"yolov5s.pt",
         "agnostic_nms":false, 
         "augment":false, 

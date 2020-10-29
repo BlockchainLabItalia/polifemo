@@ -6,7 +6,6 @@ class MyInflux:
         self.client = InfluxDBClient(host, port)
         if(not database_name in self.get_databases()):
             self.client.create_database(database_name)
-
         self.client.switch_database(database_name)
         self.cameraId = cameraID
         
