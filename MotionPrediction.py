@@ -95,5 +95,5 @@ def associate_points(detected_people, delayed_people, img_width, img_height):
             distances.pop(column_index)
             column_index = column_index + n
 
-
+    tracked_people.extend(delayed_people)
     return tracked_people
