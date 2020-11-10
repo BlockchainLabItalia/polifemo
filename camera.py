@@ -47,23 +47,23 @@ class Camera (Thread):
         # Get names and colors
         names = self.model.module.names if hasattr(self.model, 'module') else self.model.names
 
-        imgsz = check_img_size(self.imgsz, s=self.model.stride.max())  # check img_size
+        ##imgsz = check_img_size(self.imgsz, s=self.model.stride.max())  # check img_size
+        imgsz = self.imgsz
+
         cudnn.benchmark = True  # set True to speed up constant image size inference
-        if self.source.isnumeric() or self.source.startswith(('rtsp://', 'rtmp://', 'http://')) or self.source.endswith('.txt'):
-            dataset = LoadStreams(self.source, img_size=imgsz)
-        else:
-            dataset = LoadImages(self.source, img_size=imgsz)
+
+        dataset = LoadStreams(self.source, img_size=imgsz)
 
         half = self.device.type != 'cpu'  # half precision only supported on CUDA
 
-        if half:
-            self.model.half()  # to FP16
+        ##if half:
+        ##    self.model.half()  # to FP16
             
-        img = torch.zeros((1, 3, imgsz, imgsz), device=self.device)  # init img
-        _ = self.model(img.half() if half else img) if self.device.type != 'cpu' else None  # run once
+        ##img = torch.zeros((1, 3, imgsz, imgsz), device=self.device)  # init img
+        ##_ = self.model(img.half() if half else img) if self.device.type != 'cpu' else None  # run once
 
 
-        for path, img, im0s, vid_cap in dataset:
+        for _, img, im0s in dataset:
             img = torch.from_numpy(img).to(self.device)
             img = img.half() if half else img.float()  # uint8 to fp16/32
             img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -71,24 +71,21 @@ class Camera (Thread):
                 img = img.unsqueeze(0)
 
             # Inference
-            t1 = time_synchronized()
             pred = self.model(img, augment=False)[0]
 
             # Apply NMS
             pred = non_max_suppression(pred, 0.4, 0.5, None, agnostic=False)
-            t2 = time_synchronized()
 
 
 
 
             # Process detections
             for i, det in enumerate(pred):  # detections per image
-                s, im0 = '%s: ' % self.cameraID, im0s[i].copy()
+                im0 =  im0s[i].copy()
 
                 detected_peolple = []
 
-                height, width = img.shape[2:]   
-                s += '%gx%g ' % (height, width) # print string
+                height, width = img.shape[2:]  
 
                 height0, width0 = im0.shape[0], im0.shape[1]   
 
@@ -130,7 +127,6 @@ class Camera (Thread):
                                     position = 'OUT'
 
                             detected_peolple.append(Person(center,position))
-                            print(position)
 
 
                 if len(self.people) > 0 and len(detected_peolple) > 0:
@@ -140,8 +136,8 @@ class Camera (Thread):
 
                 self.count_people()
 
-                # Print time (inference + NMS)
-                print('%sDone. (%.3fs)' % (s, t2 - t1))
+        # Print time (inference + NMS)
+        print('%s Done.' % (self.cameraID))
 
 
 

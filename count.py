@@ -29,12 +29,19 @@ def detect(configuration_data):
     if os.path.exists(out):
         shutil.rmtree(out)  # delete output folder
     os.makedirs(out)  # make new output folder
-    
 
     # Load model
     model = attempt_load(weights, map_location=device)  # load FP32 model
     
-    
+    imgsz = check_img_size(imgsz, s=model.stride.max())  # check img_size
+
+    half = device.type != 'cpu'  # half precision only supported on CUDA
+
+    if half:
+        model.half()  # to FP16
+            
+    img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
+    _ = model(img.half() if half else img) if device.type != 'cpu' else None  # run once
 
     for camera in cameras:
         Camera(camera["name"],model,device,imgsz,camera["source"],camera["line_orientation"],camera["line_position"],camera["position_in"],configuration_data["databases"]).start()
@@ -44,8 +51,6 @@ def detect(configuration_data):
 if __name__ == '__main__':
     with open('./configuration.json') as f:
         configuration_data = json.load(f)
-    
-    print(configuration_data)
     
     with torch.no_grad():
         if configuration_data["arguments"]["update"]:  # update all models (to fix SourceChangeWarning)

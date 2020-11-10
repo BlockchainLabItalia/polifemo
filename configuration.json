@@ -3,7 +3,7 @@
     [
         {
             "name":"cameraId1",
-            "source":"rtsp://192.168.1.222/11",
+            "source":"rtsp://192.168.1.35/11",
             "line_orientation":"vertical",
             "line_position":0.4,
             "position_in":"right"
