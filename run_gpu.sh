@@ -5,5 +5,4 @@ docker run \
 --gpus all \
 --rm \
 -it \
--v /home/paolo/code_base/ffserver/data:/usr/src/app/inference/video \
 pmonteverdi/polifemo:1

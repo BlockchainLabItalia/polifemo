@@ -9,26 +9,30 @@ import torch
 from numpy import random
 
 from models.experimental import attempt_load
-from utils.general import (strip_optimizer, set_logging)
+from utils.general import (strip_optimizer, set_logging, check_img_size)
 from utils.torch_utils import select_device
 
 from camera import Camera
 
 import json
 
+import signal
+import sys
+
+def sigint_handler(signal, frame):
+    print('Interrupted')
+    sys.exit(0)
+signal.signal(signal.SIGINT, sigint_handler)
 
 
 
 def detect(configuration_data):
-    out, weights, imgsz, cameras = \
-        configuration_data["arguments"]["output"], configuration_data["arguments"]["weights"], configuration_data["arguments"]["img_size"], configuration_data["cameras"]
+    weights, imgsz, cameras = \
+        configuration_data["arguments"]["weights"], configuration_data["arguments"]["img_size"], configuration_data["cameras"]
 
     # Initialize
     set_logging()
     device = select_device(configuration_data["arguments"]["device"])
-    if os.path.exists(out):
-        shutil.rmtree(out)  # delete output folder
-    os.makedirs(out)  # make new output folder
 
     # Load model
     model = attempt_load(weights, map_location=device)  # load FP32 model
@@ -53,9 +57,4 @@ if __name__ == '__main__':
         configuration_data = json.load(f)
     
     with torch.no_grad():
-        if configuration_data["arguments"]["update"]:  # update all models (to fix SourceChangeWarning)
-            for configuration_data["arguments"]["weights"] in ['yolov5s.pt', 'yolov5m.pt', 'yolov5l.pt', 'yolov5x.pt']:
-                detect(configuration_data)
-                strip_optimizer(configuration_data["arguments"]["weights"])
-        else:
-            detect(configuration_data)
+        detect(configuration_data)

@@ -2,10 +2,28 @@
     "cameras": 
     [
         {
-            "name":"cameraId1",
-            "source":"rtsp://192.168.1.35/11",
+            "name":"IPCameraId1",
+            "source":"rtsp://192.168.1.20/11",
             "line_orientation":"vertical",
             "line_position":0.4,
+            "position_in":"right"
+        },{
+            "name":"IPCameraId2",
+            "source":"rtsp://192.168.1.88/11",
+            "line_orientation":"vertical",
+            "line_position":0.5,
+            "position_in":"right"
+        },{
+            "name":"IPCameraId3",
+            "source":"rtsp://192.168.1.20/11",
+            "line_orientation":"vertical",
+            "line_position":0.4,
+            "position_in":"right"
+        },{
+            "name":"IPCameraId4",
+            "source":"rtsp://192.168.1.88/11",
+            "line_orientation":"vertical",
+            "line_position":0.5,
             "position_in":"right"
         }
     ],
@@ -18,14 +36,7 @@
     "arguments":
     {
         "img_size":640,
-        "conf_thres":0.4,
-        "iou_thres":0.5,
-        "device":"cpu",
-        "weights":"yolov5s.pt",
-        "agnostic_nms":false, 
-        "augment":false, 
-        "classes":null,
-        "output":"inference/output",
-        "update":false
+        "device":"0",
+        "weights":"yolov5s.pt"
     }
 }

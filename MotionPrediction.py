@@ -44,7 +44,7 @@ def associate_points(detected_people, delayed_people, img_width, img_height):
 
     tracked_people = []
 
-    min_dist, i = get_min(distances)
+    min_dist, _ = get_min(distances)
     
 
     while len(detected_people)>0 and len(delayed_people) and min_dist<img_width/8 :
@@ -91,7 +91,7 @@ def associate_points(detected_people, delayed_people, img_width, img_height):
         #elimino la colonna dalla matrice delle distanze
         n = int(len(delayed_people))
 
-        for i in range(len(detected_people)):
+        for _ in range(len(detected_people)):
             distances.pop(column_index)
             column_index = column_index + n
 
