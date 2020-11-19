@@ -5,4 +5,4 @@ docker run \
 --gpus all \
 --rm \
 -it \
-pmonteverdi/polifemo:1
+pmonteverdi/polifemo:v1.0
