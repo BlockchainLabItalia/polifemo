@@ -87,19 +87,16 @@ class Camera (Thread):
 
                     detected_peolple = []
 
-                    height, width = img.shape[2:]  
 
                     height0, width0 = im0.shape[0], im0.shape[1]   
-
-                    scale_height, scale_width = height/height0, width/width0 
 
 
                     # Define Line
 
                     if self.line_orientation == 'vertical':
-                        line = width*self.line_position
+                        line = width0*self.line_position
                     else:
-                        line = height*self.line_position
+                        line = height0*self.line_position
 
                     if det is not None and len(det):
                         # Rescale boxes from img_size to im0 size
@@ -109,7 +106,7 @@ class Camera (Thread):
 
                             if names[int(xyxy[-1])] == 'person':
 
-                                c1, c2 = (int(xyxy[0]) * scale_width, int(xyxy[1]) * scale_height), (int(xyxy[2]) * scale_width, int(xyxy[3]) * scale_height)
+                                c1, c2 = (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))
                                 center = ((c1[0]+c2[0])/2, (c1[1]+c2[1])/2)
 
                                 position = ''
@@ -132,7 +129,7 @@ class Camera (Thread):
 
 
                     if len(self.people) > 0 and len(detected_peolple) > 0:
-                        self.people = associate_points(self.people, detected_peolple, width, height)
+                        self.people = associate_points(self.people, detected_peolple, width0, height0)
                     else:
                         self.people = detected_peolple
 

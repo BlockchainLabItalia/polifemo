@@ -19,12 +19,6 @@ import json
 import signal
 import sys
 
-def sigint_handler(signal, frame):
-    print('Interrupted')
-    sys.exit(0)
-signal.signal(signal.SIGINT, sigint_handler)
-
-
 
 def detect(configuration_data):
     weights, imgsz, cameras = \

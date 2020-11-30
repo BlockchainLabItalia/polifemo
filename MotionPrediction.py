@@ -26,31 +26,19 @@ def calculate_distances_matrix(detected_people, delayed_people):
     return matrix
 
 
-def get_min(list):
-    min_value = sys.float_info.max
-    index = -1
-    i = -1
-    for element in list:
-        i = i+1
-        if element < min_value:
-            min_value = element
-            index = i
-
-    return (min_value, index)
-
 def associate_points(detected_people, delayed_people, img_width, img_height):
 
     distances = calculate_distances_matrix(detected_people, delayed_people)
 
     tracked_people = []
 
-    min_dist, _ = get_min(distances)
+    min_dist = min(distances)
     
 
     while len(detected_people)>0 and len(delayed_people) and min_dist<img_width/8 :
 
         #indice dell' valore minimo nell' array delle distanze
-        min_dist, min_index = get_min(distances)
+        min_index = distances.index(min_dist) 
 
         #numero di colonne della matrice (=numero di elementi in delayed_people)
         columns_matrix = int(len(delayed_people))
@@ -68,6 +56,8 @@ def associate_points(detected_people, delayed_people, img_width, img_height):
         delayed_person.previousPoint = detected_person.centroid
         delayed_person.predictionPoint = prediction_point
         delayed_person.crossed = (delayed_person.position != detected_person.position)
+        delayed_person.color = detected_person.color
+        delayed_person.err_range = min_dist
 
         tracked_people.append(delayed_person)
 
@@ -94,6 +84,9 @@ def associate_points(detected_people, delayed_people, img_width, img_height):
         for _ in range(len(detected_people)):
             distances.pop(column_index)
             column_index = column_index + n
+
+        if len(distances) > 0:
+            min_dist = min(distances)
 
     tracked_people.extend(delayed_people)
     return tracked_people
