@@ -153,8 +153,9 @@ class Camera (Thread):
                     else:
                         print('no image in this cycle')
 
-            except Exception:
+            except Exception as e:
                 print('an error occured')
+                print(e)
                 dataset.cap.release()
         # Print time (inference + NMS)
         print('%s Camera Closed.' % (self.cameraID))
