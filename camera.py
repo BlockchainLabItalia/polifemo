@@ -69,7 +69,7 @@ class Camera (Thread):
             dataset = LoadStreams(self.source, img_size=imgsz)
             try:
                 for _, img, im0s, hasFrame in dataset:
-                    if hasFrame and img is not None:
+                    if hasFrame and img is not None and len(im0s):
                         img = torch.from_numpy(img).to(self.device)
                         img = img.half() if half else img.float()  # uint8 to fp16/32
                         img /= 255.0  # 0 - 255 to 0.0 - 1.0
