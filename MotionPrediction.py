@@ -56,8 +56,6 @@ def associate_points(detected_people, delayed_people, img_width, img_height):
         delayed_person.previousPoint = detected_person.centroid
         delayed_person.predictionPoint = prediction_point
         delayed_person.crossed = (delayed_person.position != detected_person.position)
-        delayed_person.color = detected_person.color
-        delayed_person.err_range = min_dist
 
         tracked_people.append(delayed_person)
 
