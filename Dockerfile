@@ -15,8 +15,8 @@ FROM nvcr.io/nvidia/pytorch:20.03-py3
 COPY requirements.txt .
 RUN pip install -r requirements.txt gsutil influxdb
 
-#RUN apt update
-#RUN apt install -y libgl1-mesa-glx
+RUN apt update
+RUN apt install -y libgl1-mesa-glx
 
 # Create working directory
 RUN mkdir -p /usr/src/app
@@ -24,3 +24,6 @@ WORKDIR /usr/src/app
 
 # Copy contents
 COPY . /usr/src/app
+
+ENTRYPOINT ["python"]
+CMD ["count.py"]

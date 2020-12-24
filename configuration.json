@@ -2,35 +2,26 @@
     "cameras": 
     [
         {
-            "name":"IPCameraId1",
-            "source":"rtsp://192.168.1.20/11",
-            "line_orientation":"vertical",
-            "line_position":0.4,
-            "position_in":"right"
-        },{
-            "name":"IPCameraId2",
-            "source":"rtsp://192.168.1.88/11",
-            "line_orientation":"vertical",
-            "line_position":0.5,
-            "position_in":"right"
-        },{
-            "name":"IPCameraId3",
-            "source":"rtsp://192.168.1.20/11",
-            "line_orientation":"vertical",
-            "line_position":0.4,
-            "position_in":"right"
-        },{
-            "name":"IPCameraId4",
-            "source":"rtsp://192.168.1.88/11",
-            "line_orientation":"vertical",
-            "line_position":0.5,
+            "name":"IPCAM_Corso_Mazzini",
+            "source":"rtsp://192.168.1.50/11",
+            "line_orientation":"oblique",
+            "line_position":{
+                "point1":{
+                    "x":987,
+                    "y":255
+                },
+                "point2":{
+                    "x":2470,
+                    "y":957
+                }
+            },
             "position_in":"right"
         }
     ],
     "databases":
     {
         "database_name":"socialcounter",
-        "hostname":"68.183.38.198",
+        "hostname":"116.203.216.121",
         "port":8086
     },
     "arguments":
