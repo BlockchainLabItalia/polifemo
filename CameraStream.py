@@ -189,7 +189,7 @@ class CameraStream :
                     else:
                         self.people = detected_peolple
 
-                    Thread(target=self.count_people(), daemon=True).start()
+                    self.count_people()
                     self.queue.task_done()
                     #print('execute_analisys done. remaining %g element in the queue' % self.queue_2.qsize())
 
