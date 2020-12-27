@@ -29,8 +29,7 @@ class CameraStream :
 
 
     def start_processing(self):
-        self.queue_1 = queue.Queue()
-        self.queue_2 = queue.Queue()
+        self.queue = queue.Queue()
         self.people = []
 
         print('%s: %s... ' % (self.name, self.source))
@@ -58,13 +57,10 @@ class CameraStream :
 
         self.line = (point1, point2)
 
-        thread2 = Thread(target=self.reshape_img, daemon=True)
-        thread3 = Thread(target=self.execute_analisys, daemon=True)
+        thread2 = Thread(target=self.execute_analisys, daemon=True)
         thread2.start()
-        thread3.start()
         thread1.join()
         thread2.join()
-        thread3.join()
 
     def update(self, cap):
         # Read next stream frame in a daemon thread
@@ -75,29 +71,10 @@ class CameraStream :
             _ = cap.grab()
             if n == 4 and _:   # read every 4th frame
                 _, img0 = cap.retrieve()
-                self.queue_1.put(img0)
+                self.queue.put(img0)
                 n = 0
             time.sleep(0.06)  # wait time
         print('video capture stopped')
-
-    def reshape_img(self):
-        while True:
-            if not self.queue_1.empty() :
-                img0 = self.queue_1.get()
-                self.im0_shape = img0.shape
-                # Letterbox
-                img = [letterbox(img0, new_shape=self.img_size)[0]]
-
-                # Stack
-                img = np.stack(img, 0)
-
-                # Convert
-                img = img[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB, to bsx3x416x416
-                img = np.ascontiguousarray(img)
-                self.queue_2.put(img)
-                #print('reshape_img done. remaining %g element in the queue' % self.queue_1.qsize())
-                self.queue_1.task_done()
-                time.sleep(0.015)  # wait time
 
     def count_people(self):
 
@@ -135,8 +112,19 @@ class CameraStream :
 
 
         while True:    
-            if not self.queue_2.empty():
-                img = self.queue_2.get()
+            if not self.queue.empty():
+                img0 = self.queue.get()
+                im0_shape = img0.shape
+                # Letterbox
+                img = [letterbox(img0, new_shape=self.img_size)[0]]
+
+                # Stack
+                img = np.stack(img, 0)
+
+                # Convert
+                img = img[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB, to bsx3x416x416
+                img = np.ascontiguousarray(img)
+
                 img = torch.from_numpy(img).to(self.device)
                 img = img.half() if half else img.float()  # uint8 to fp16/32
                 img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -159,7 +147,7 @@ class CameraStream :
 
                     if det is not None and len(det):
                         # Rescale boxes from img_size to im0 size
-                        det[:, :4] = scale_coords(img.shape[2:], det[:, :4], self.im0_shape).round()
+                        det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0_shape).round()
 
                         for xyxy in reversed(det):
 
@@ -195,12 +183,12 @@ class CameraStream :
 
 
                     if len(self.people) > 0 and len(detected_peolple) > 0:
-                        self.people = associate_points(self.people, detected_peolple, self.im0_shape[0], self.im0_shape[1])
+                        self.people = associate_points(self.people, detected_peolple, im0_shape[0], im0_shape[1])
                     else:
                         self.people = detected_peolple
 
                     self.count_people()
-                    self.queue_2.task_done()
+                    self.queue.task_done()
                     #print('execute_analisys done. remaining %g element in the queue' % self.queue_2.qsize())
 
 
