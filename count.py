@@ -51,7 +51,7 @@ def detect(configuration_data):
 
         camera_process = CameraStream(camera["source"], model, device, camera["line_orientation"], camera["line_position"],camera["position_in"], db_client, img_size=imgsz, cameraID=camera["name"])
         
-
+        print('starting %s' % camera["name"])
         camera_process.start_processing()
         print('started')
         #Camera(camera["name"],model,device,imgsz,camera["source"],camera["line_orientation"],camera["line_position"],camera["position_in"],configuration_data["databases"]).start()
