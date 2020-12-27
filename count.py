@@ -11,8 +11,11 @@ from numpy import random
 from models.experimental import attempt_load
 from utils.general import (strip_optimizer, set_logging, check_img_size)
 from utils.torch_utils import select_device
+from utils.datasets import LoadStreams
 
 from camera import Camera
+from CameraStream import CameraStream
+from myInflux import MyInflux
 
 import json
 
@@ -41,8 +44,16 @@ def detect(configuration_data):
     img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
     _ = model(img.half() if half else img) if device.type != 'cpu' else None  # run once
 
+    influx_config = configuration_data["databases"]
+    db_client = MyInflux(influx_config["hostname"],influx_config["database_name"],influx_config["port"])
+
     for camera in cameras:
-        Camera(camera["name"],model,device,imgsz,camera["source"],camera["line_orientation"],camera["line_position"],camera["position_in"],configuration_data["databases"]).start()
+
+        camera_process = CameraStream(camera["source"], model, device, camera["line_orientation"], camera["line_position"],camera["position_in"], db_client, img_size=imgsz, cameraID=camera["name"])
+        
+
+        camera_process.start_processing()
+        #Camera(camera["name"],model,device,imgsz,camera["source"],camera["line_orientation"],camera["line_position"],camera["position_in"],configuration_data["databases"]).start()
 
 
 
