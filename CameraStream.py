@@ -90,9 +90,11 @@ class CameraStream :
                 if p.crossed:
                     going_out = going_out + 1
                 people_out = people_out + 1
-    
-        self.db.write_crossed(going_in, going_out, self.name)
-        self.db.write_revealed(people_in, people_out, self.name)
+
+        if going_in or going_out:
+            self.db.write_crossed(going_in, going_out, self.name)
+        if people_in or people_out:
+            self.db.write_revealed(people_in, people_out, self.name)
 
     def execute_analisys(self):
         # Get names and colors
@@ -187,7 +189,7 @@ class CameraStream :
                     else:
                         self.people = detected_peolple
 
-                    self.count_people()
+                    Thread(target=self.count_people(), daemon=True).start()
                     self.queue.task_done()
                     #print('execute_analisys done. remaining %g element in the queue' % self.queue_2.qsize())
 
