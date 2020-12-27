@@ -85,6 +85,7 @@ class CameraStream :
                 n = 0
             time.sleep(0.06)  # wait time
         print('video capture stopped')
+        raise Exception('cap closed')
 
     def count_people(self):
 
