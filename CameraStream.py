@@ -95,6 +95,9 @@ class CameraStream :
                 img = img[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB, to bsx3x416x416
                 img = np.ascontiguousarray(img)
                 self.queue_2.put(img)
+                print('reshape_img done. remaining %g element in the queue' % self.queue_1.)
+                self.queue_1.task_done()
+                time.sleep(0.01)  # wait time
 
     def count_people(self):
 
@@ -197,6 +200,8 @@ class CameraStream :
                         self.people = detected_peolple
 
                     self.count_people()
+                    self.queue_2.task_done()
+                    time.sleep(0.01)  # wait time
 
 
 
