@@ -62,6 +62,9 @@ class CameraStream :
         thread3 = Thread(target=self.execute_analisys, daemon=True)
         thread2.start()
         thread3.start()
+        thread1.join()
+        thread2.join()
+        thread3.join()
 
     def update(self, cap):
         # Read next stream frame in a daemon thread
@@ -194,8 +197,6 @@ class CameraStream :
                         self.people = detected_peolple
 
                     self.count_people()
-            else:
-                print('no image in this cycle')
 
 
 
