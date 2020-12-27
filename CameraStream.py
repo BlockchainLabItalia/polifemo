@@ -77,7 +77,7 @@ class CameraStream :
                 _, img0 = cap.retrieve()
                 self.queue_1.put(img0)
                 n = 0
-            time.sleep(0.1)  # wait time
+            time.sleep(0.06)  # wait time
         print('video capture stopped')
 
     def reshape_img(self):
@@ -97,7 +97,7 @@ class CameraStream :
                 self.queue_2.put(img)
                 #print('reshape_img done. remaining %g element in the queue' % self.queue_1.qsize())
                 self.queue_1.task_done()
-                time.sleep(0.1)  # wait time
+                time.sleep(0.015)  # wait time
 
     def count_people(self):
 
