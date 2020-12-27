@@ -18,6 +18,9 @@ RUN pip install -r requirements.txt gsutil influxdb
 RUN apt update
 RUN apt install -y libgl1-mesa-glx
 
+RUN apt install -y ffmpeg
+RUN apt install -y python3-opencv
+
 # Create working directory
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
