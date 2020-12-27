@@ -29,43 +29,53 @@ class CameraStream :
 
 
     def start_processing(self):
-        self.queue = queue.Queue()
-        self.people = []
+        try:
+            self.queue = queue.Queue()
+            self.people = []
+            self._is_running_ = True
+            print('%s: %s... ' % (self.name, self.source))
+            cap = cv2.VideoCapture(self.source)
+            assert cap.isOpened(), 'Failed to open %s' % self.source
+            w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            fps = cap.get(cv2.CAP_PROP_FPS) % 100
+            assert cap.grab(), 'No frame from %s' % self.source  # guarantee first frame
+            thread1 = Thread(target=self.update, args=([cap]), daemon=True)
+            print(' success (%gx%g at %.2f FPS).' % (w, h, fps))
+            thread1.start()
 
-        print('%s: %s... ' % (self.name, self.source))
-        cap = cv2.VideoCapture(self.source)
-        assert cap.isOpened(), 'Failed to open %s' % self.source
-        w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fps = cap.get(cv2.CAP_PROP_FPS) % 100
-        assert cap.grab(), 'No frame from %s' % self.source  # guarantee first frame
-        thread1 = Thread(target=self.update, args=([cap]), daemon=True)
-        print(' success (%gx%g at %.2f FPS).' % (w, h, fps))
-        thread1.start()
+            point1 = point2 = (0, 0)
 
-        point1 = point2 = (0, 0)
+            if self.line_orientation == 'vertical':
+                point1 = (w*self.line_position, 0)
+                point1 = (w*self.line_position, h)
+            elif self.line_orientation == 'horizzontal':
+                point1 = (0, int(h*self.line_position))
+                point1 = (w, int(h*self.line_position))
+            else:
+                point1 = (int(self.line_position["point1"]["x"]), int(self.line_position["point1"]["y"]))
+                point2 = (int(self.line_position["point2"]["x"]), int(self.line_position["point2"]["y"]))
 
-        if self.line_orientation == 'vertical':
-            point1 = (w*self.line_position, 0)
-            point1 = (w*self.line_position, h)
-        elif self.line_orientation == 'horizzontal':
-            point1 = (0, int(h*self.line_position))
-            point1 = (w, int(h*self.line_position))
-        else:
-            point1 = (int(self.line_position["point1"]["x"]), int(self.line_position["point1"]["y"]))
-            point2 = (int(self.line_position["point2"]["x"]), int(self.line_position["point2"]["y"]))
+            self.line = (point1, point2)
 
-        self.line = (point1, point2)
+            thread2 = Thread(target=self.execute_analisys, daemon=True)
+            thread2.start()
+            thread1.join()
+            thread2.join()
+        except Exception as e:
+            self._is_running_= False
+            cap.release()
+            time.sleep(0.1)
+            print('AN ERROR OCCURRED')
+            print(e)
+            print('RESTARTING')
+            self.start_processing()
 
-        thread2 = Thread(target=self.execute_analisys, daemon=True)
-        thread2.start()
-        thread1.join()
-        thread2.join()
 
     def update(self, cap):
         # Read next stream frame in a daemon thread
         n = 0
-        while cap.isOpened():
+        while cap.isOpened() and self._is_running_:
             n += 1
             # _, self.imgs[index] = cap.read()
             _ = cap.grab()
@@ -113,7 +123,7 @@ class CameraStream :
         ##_ = self.model(img.half() if half else img) if self.device.type != 'cpu' else None  # run once
 
 
-        while True:    
+        while self._is_running_:    
             if not self.queue.empty():
                 img0 = self.queue.get()
                 im0_shape = img0.shape

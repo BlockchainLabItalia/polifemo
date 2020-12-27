@@ -53,6 +53,7 @@ def detect(configuration_data):
         
 
         camera_process.start_processing()
+        print('started')
         #Camera(camera["name"],model,device,imgsz,camera["source"],camera["line_orientation"],camera["line_position"],camera["position_in"],configuration_data["databases"]).start()
 
 
