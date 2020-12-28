@@ -34,18 +34,18 @@ class CameraStream :
             self.people = []
             self._is_running_ = True
             print('%s: %s... ' % (self.name, self.source))
-            cap = cv2.VideoCapture(self.source)
+            cap = cv2.VideoCapture(self.source) # apertura stream rtsp
             assert cap.isOpened(), 'Failed to open %s' % self.source
             w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
             fps = cap.get(cv2.CAP_PROP_FPS) % 100
             assert cap.grab(), 'No frame from %s' % self.source  # guarantee first frame
-            thread1 = Thread(target=self.update, args=([cap]), daemon=True)
+            thread1 = Thread(target=self.update, args=([cap]), daemon=True) # thread lettura frame da stream rtsp
             print(' success (%gx%g at %.2f FPS).' % (w, h, fps))
-            thread1.start()
 
             point1 = point2 = (0, 0)
 
+            #definita la posizione della linea di separazione tra 'in' e 'out'
             if self.line_orientation == 'vertical':
                 point1 = (w*self.line_position, 0)
                 point1 = (w*self.line_position, h)
@@ -58,10 +58,13 @@ class CameraStream :
 
             self.line = (point1, point2)
 
-            thread2 = Thread(target=self.execute_analisys, daemon=True)
+            thread2 = Thread(target=self.execute_analisys, daemon=True) # thread di elaborazione dei frame
+
+            thread1.start()
             thread2.start()
             thread1.join()
             thread2.join()
+
         except Exception as e:
             self._is_running_= False
             cap.release()
@@ -102,6 +105,7 @@ class CameraStream :
                     going_out = going_out + 1
                 people_out = people_out + 1
 
+        # se ho numeri diversi da 0-0 scrivo su db
         if going_in or going_out:
             self.db.write_crossed(going_in, going_out, self.name)
         if people_in or people_out:
@@ -125,9 +129,10 @@ class CameraStream :
 
 
         while self._is_running_:    
-            if not self.queue.empty():
+            if not self.queue.empty(): #coda su cui il thread di lettura scrive i frame da elaborare
                 img0 = self.queue.get()
                 im0_shape = img0.shape
+
                 # Letterbox
                 img = [letterbox(img0, new_shape=self.img_size)[0]]
 
@@ -141,6 +146,7 @@ class CameraStream :
                 img = torch.from_numpy(img).to(self.device)
                 img = img.half() if half else img.float()  # uint8 to fp16/32
                 img /= 255.0  # 0 - 255 to 0.0 - 1.0
+
                 if img.ndimension() == 3:
                     img = img.unsqueeze(0)
 
@@ -149,9 +155,6 @@ class CameraStream :
 
                 # Apply NMS
                 pred = non_max_suppression(pred, 0.4, 0.5, None, agnostic=False)
-
-
-
 
                 # Process detections
                 for _, det in enumerate(pred):  # detections per image
@@ -165,10 +168,13 @@ class CameraStream :
                         for xyxy in reversed(det):
 
                             if names[int(xyxy[-1])] == 'person':
-
+                                
+                                # calcolo centroide
                                 c1, c2 = (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))
                                 center = ((c1[0]+c2[0])/2, (c1[1]+c2[1])/2)
 
+                                # stabilisco se la persona sia IN o OUT in base alla porzione definita come IN 
+                                # e alla posizione del centroide rispetto alla linea
                                 position = ''
                                 if self.line_orientation == 'vertical':
                                     if center[0] < self.line[0][0] and self.position_in == 'left':
@@ -194,20 +200,22 @@ class CameraStream :
 
                                 detected_peolple.append(Person(center,position))
 
-
+                    # associo i punti rilevati ora con quelli rilevati al ciclo precedente
                     if len(self.people) > 0 and len(detected_peolple) > 0:
                         self.people = associate_points(self.people, detected_peolple, im0_shape[0], im0_shape[1])
-                    else:
+                    else: # se al ciclo precedente non avevo rilevato nessun punto, salvo i punti rilevati ora per associarli al prossimo ciclo
                         self.people = detected_peolple
-
+                    
+                    # conto le persone e scrivo su db
                     self.count_people()
                     self.queue.task_done()
                     #print('execute_analisys done. remaining %g element in the queue' % self.queue.qsize())
 
 
-
+# funzione usata per stabilire se un punto si trovi a sinistra nel caso in cui la linea sia obliqua
 def isLeft(a, b, c):
     return ((b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0])) > 0
+
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True):
     # Resize image to a 32-pixel-multiple rectangle https://github.com/ultralytics/yolov3/issues/232
