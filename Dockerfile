@@ -13,7 +13,9 @@ FROM nvcr.io/nvidia/pytorch:20.03-py3
 
 # Install dependencies
 COPY requirements.txt .
-RUN pip install -r requirements.txt gsutil influxdb
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt 
+RUN pip install gsutil influxdb
 
 RUN apt update
 RUN apt install -y libgl1-mesa-glx
