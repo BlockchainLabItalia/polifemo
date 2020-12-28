@@ -202,7 +202,7 @@ class CameraStream :
 
                     self.count_people()
                     self.queue.task_done()
-                    print('execute_analisys done. remaining %g element in the queue' % self.queue.qsize())
+                    #print('execute_analisys done. remaining %g element in the queue' % self.queue.qsize())
 
 
 
