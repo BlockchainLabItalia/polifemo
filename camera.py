@@ -15,7 +15,7 @@ class Camera (Thread):
         Thread.__init__(self)
         self.people = []
         self.cameraID = cameraID
-        self.db_client = MyInflux(cameraID, influx_config["hostname"],influx_config["database_name"],influx_config["port"])
+        self.db_client = MyInflux(influx_config["hostname"],influx_config["database_name"],influx_config["port"])
         self.model = model
         self.imgsz = imgsz
         self.source = ip_address
@@ -39,8 +39,8 @@ class Camera (Thread):
                     going_out = going_out + 1
                 people_out = people_out + 1
     
-        self.db_client.write_crossed(going_in, going_out)
-        self.db_client.write_revealed(people_in, people_out)
+        self.db_client.write_crossed(going_in, going_out, self.cameraID)
+        self.db_client.write_revealed(people_in, people_out, self.cameraID)
 
     def isLeft(self, a, b, c):
         return ((b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0])) > 0
