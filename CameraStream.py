@@ -65,7 +65,7 @@ class CameraStream :
             thread1.join()
             thread2.join()
 
-        except cv2.error as e:
+        except Exception as e:
             self._is_running_= False
             cap.release()
             time.sleep(0.1)
