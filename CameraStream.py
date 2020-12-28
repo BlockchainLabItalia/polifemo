@@ -83,7 +83,7 @@ class CameraStream :
                 _, img0 = cap.retrieve()
                 self.queue.put(img0)
                 n = 0
-            time.sleep(0.06)  # wait time
+            time.sleep(0.01)  # wait time
         print('video capture stopped')
         raise Exception('cap closed')
 
@@ -202,7 +202,7 @@ class CameraStream :
 
                     self.count_people()
                     self.queue.task_done()
-                    #print('execute_analisys done. remaining %g element in the queue' % self.queue_2.qsize())
+                    print('execute_analisys done. remaining %g element in the queue' % self.queue_2.qsize())
 
 
 
