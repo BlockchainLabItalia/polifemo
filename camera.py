@@ -8,7 +8,8 @@ from utils.general import (
     non_max_suppression, apply_classifier, scale_coords, xyxy2xywh)
 import torch
 import torch.backends.cudnn as cudnn
-from utils.datasets import LoadStreams, LoadImages
+#from utils.datasets import LoadStreams, LoadImages
+from ffmpeg_stream_reader import LoadStreams
 
 class Camera (Thread):
     def __init__(self, cameraID, model, device, imgsz, ip_address, line_orientation, line_position, position_in, influx_config):

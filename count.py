@@ -11,7 +11,6 @@ from numpy import random
 from models.experimental import attempt_load
 from utils.general import (strip_optimizer, set_logging, check_img_size)
 from utils.torch_utils import select_device
-from utils.datasets import LoadStreams
 
 from camera import Camera
 from CameraStream import CameraStream
@@ -49,13 +48,13 @@ def detect(configuration_data):
 
     for camera in cameras:
 
-        camera_process = CameraStream(camera["source"], model, device, camera["line_orientation"], camera["line_position"],camera["position_in"], db_client, img_size=imgsz, cameraID=camera["name"])
+        #camera_process = CameraStream(camera["source"], model, device, camera["line_orientation"], camera["line_position"],camera["position_in"], db_client, img_size=imgsz, cameraID=camera["name"])
         
         print('starting %s' % camera["name"])
-        camera_process.start_processing()
+        #camera_process.start_processing()
+        
+        Camera(camera["name"],model,device,imgsz,camera["source"],camera["line_orientation"],camera["line_position"],camera["position_in"],configuration_data["databases"]).start()
         print('started')
-        #Camera(camera["name"],model,device,imgsz,camera["source"],camera["line_orientation"],camera["line_position"],camera["position_in"],configuration_data["databases"]).start()
-
 
 
 if __name__ == '__main__':

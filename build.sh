@@ -1,1 +1,1 @@
-docker build -t pmonteverdi/polifemo:v1.2 .
+docker build -t pmonteverdi/polifemo:v1.3 .
